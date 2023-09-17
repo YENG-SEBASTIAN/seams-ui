@@ -90,13 +90,26 @@ function ResponsiveAppBar() {
                 display: { xs: 'block', md: 'none' },
               }}
             >
-              {studentPages.map((page) => (
-                <MenuItem key={page} onClick={handleCloseNavMenu}>
-                  <Typography sx={{textDecoration: 'none'}} textAlign="center" component={Link} to={`/${page.toLowerCase()}`}>
-                    {page}
-                  </Typography>
-                </MenuItem>
-              ))}
+              {
+                localStorage.getItem('userRole') === 'Student' ? (
+                  studentPages.map((page) => (
+                    <MenuItem key={page} onClick={handleCloseNavMenu}>
+                      <Typography sx={{textDecoration: 'none'}} textAlign="center" component={Link} to={`/${page.toLowerCase()}`}>
+                        {page}
+                      </Typography>
+                    </MenuItem>
+                  ))
+                ) : localStorage.getItem('userRole') === 'Lecturer' ? (
+                  lecturerPages.map((page) => (
+                    <MenuItem key={page} onClick={handleCloseNavMenu}>
+                      <Typography sx={{textDecoration: 'none'}} textAlign="center" component={Link} to={`/${page.toLowerCase()}`}>
+                        {page}
+                      </Typography>
+                    </MenuItem>
+                  ))
+                ) : ''
+              }
+          
             </Menu>
           </Box>
           <AdbIcon sx={{ display: { xs: 'flex', md: 'none' }, mr: 1 }} />
@@ -119,7 +132,8 @@ function ResponsiveAppBar() {
             SEAMS
           </Typography>
           <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
-            {studentPages.map((page) => (
+            {
+            localStorage.getItem('userRole') === 'Student' ? (studentPages.map((page) => (
               <Button
                 key={page}
                 onClick={handleCloseNavMenu}
@@ -129,7 +143,18 @@ function ResponsiveAppBar() {
               >
                 {page}
               </Button>
-            ))}
+            ))) : localStorage.getItem('userRole') === 'Lecturer' ? (lecturerPages.map((page) => (
+              <Button
+                key={page}
+                onClick={handleCloseNavMenu}
+                sx={{ my: 2, color: 'white', display: 'block' }}
+                component={Link}
+                to={`/${page.toLowerCase()}`}
+              >
+                {page}
+              </Button>
+            ))) : ''
+            }
           </Box>
 
           <Box sx={{ flexGrow: 0 }}>
@@ -154,13 +179,21 @@ function ResponsiveAppBar() {
               open={Boolean(anchorElUser)}
               onClose={handleCloseUserMenu}
             >
-              {settings.map((setting) => (
+              {
+              localStorage.getItem('userRole') === 'Student' ? (settings.map((setting) => (
                 <MenuItem key={setting} onClick={handleCloseUserMenu}>
                   <Typography sx={{textDecoration: 'none'}} textAlign="center" component={Link} to={`/${setting.toLowerCase()}`}>
                     {setting}
                   </Typography>
                 </MenuItem>
-              ))}
+              ))) : localStorage.getItem('userRole') === 'Lecturer' ? (settings.length > 1 && (
+                <MenuItem key={settings[1]} onClick={handleCloseUserMenu}>
+                  <Typography sx={{textDecoration: 'none'}} textAlign="center" component={Link} to={`/${settings[1].toLowerCase()}`}>
+                    {settings[1]}
+                  </Typography>
+                </MenuItem>
+                )) : ''
+            }
             </Menu>
           </Box>
         </Toolbar>

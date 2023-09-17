@@ -19,7 +19,10 @@ function App() {
   return (
     <>
       <AuthProvider>
-        <ResponsiveAppBar />
+        {
+          localStorage.getItem('userRole') ? <ResponsiveAppBar /> : ''
+        }
+        
         <Routes>
           {/* public routes */}
           <Route path='/' exact element={<SignIn />} />
