@@ -1,7 +1,5 @@
 import * as React from 'react';
-import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
-import Stack from '@mui/material/Stack';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
@@ -12,7 +10,16 @@ import RegisterCourses from './pages/students/RegisterCourses';
 import Attendance from './pages/students/Attendance';
 import Profile from './pages/students/Profile';
 import StudentRequired from './context/StudentRequired';
+import LecturerRequired from './context/LecturerRequired';
 import UpdateCourse from './pages/students/UpdateCourse';
+
+import LecturerDashboard from './pages/lectures/LecturerDashboard';
+import AddSemesterCourses from './pages/lectures/AddSemesterCourses';
+import TakeAttendance from './pages/lectures/TakeAttendance';
+import Report from './pages/lectures/Report';
+import MarkAttendance from './pages/lectures/MarkAttendance';
+import UpdateSemesterCourses from './pages/lectures/UpdateSemesterCourses';
+
 import { Routes, Route } from 'react-router-dom';
 
 function Copyright() {
@@ -52,9 +59,16 @@ export default function Layout() {
               <Route path='/dashboard' exact element={<StudentRequired> <StudentDashboard /> </StudentRequired>} />
               <Route path='/register-courses' exact element={<StudentRequired> <RegisterCourses /> </StudentRequired>} />
               <Route path='/updateCourse/:id' exact element={<StudentRequired> <UpdateCourse /> </StudentRequired>} />
-
               <Route path='/attendance' exact element={<StudentRequired> <Attendance /> </StudentRequired>} />
               <Route path='/profile' exact element={<StudentRequired> <Profile /> </StudentRequired>} />
+
+              {/* lecturer components */}
+              <Route path='/home' exact element={<LecturerRequired> <LecturerDashboard /> </LecturerRequired> } />
+              <Route path='/add-courses' exact element={<LecturerRequired> <AddSemesterCourses /> </LecturerRequired> } />
+              <Route path='/take-attendance' exact element={<LecturerRequired> <TakeAttendance /> </LecturerRequired> } />
+              <Route path='/reports' exact element={<LecturerRequired> <Report /> </LecturerRequired> } />
+              <Route path='/mark-attendance' exact element={<LecturerRequired> <MarkAttendance /> </LecturerRequired> } />
+              <Route path='/updateLceturerCourse/:id' exact element={<LecturerRequired> <UpdateSemesterCourses /> </LecturerRequired> } />
 
             </Routes>
           </Container>

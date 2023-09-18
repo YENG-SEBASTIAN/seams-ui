@@ -67,9 +67,12 @@ const SignIn = ({ login, load_user, checkAuthenticated }) => {
     // Check if the user is already authenticated and has an access token
     const accessToken = localStorage.getItem('access');
 
-    if (checkAuthenticated && accessToken) {
+    if (checkAuthenticated && accessToken && localStorage.getItem('userRole') === 'Student') {
       // User is authenticated, redirect to the dashboard
       navigate('/esams/dashboard', { replace: true });
+    } else if (checkAuthenticated && accessToken && localStorage.getItem('userRole') === 'Lecturer') {
+      // User is authenticated, redirect to the dashboard
+      navigate('/esams/home', { replace: true });
     } else {
       // User is not authenticated, load user data if needed
       load_user();
@@ -86,8 +89,11 @@ const SignIn = ({ login, load_user, checkAuthenticated }) => {
         await login(email, password);
         await auth.load_user();
         if (localStorage.getItem('userRole') === 'Student') {
-          window.location.reload()
-          navigate('/dashboard', { replace: true });
+          navigate('/esams/dashboard', { replace: true });
+          window.location.reload();
+        } else if (localStorage.getItem('userRole') === 'Lecturer') {
+          navigate('/esams/home', { replace: true })
+          window.location.reload();
         }
       } catch (error) {
         console.error('Login error:', error);

@@ -19,7 +19,7 @@ import { logout } from '../actions/auth';
 
 
 const studentPages = ['Dashboard', 'Register-Courses', 'Attendance'];
-const lecturerPages = ['Dashboard', 'Add courses', 'Take Attendance', 'Reports'];
+const lecturerPages = ['home', 'Add-courses', 'Reports'];
 const settings = ['Profile', 'Logout'];
 
 
@@ -47,8 +47,7 @@ function ResponsiveAppBar({ logout }) {
   const log_out = async () => {
     await logout();
     localStorage.removeItem('userRole');
-    window.location.reload();
-    return navigate('/')
+    return window.location.href = "/";
   }
 
   return (
@@ -194,13 +193,15 @@ function ResponsiveAppBar({ logout }) {
             >
               {
                 localStorage.getItem('userRole') === 'Lecturer' ? (
-                  settings.map((setting) => (
-                    <MenuItem key={setting} onClick=''>
-                      <Typography sx={{ textDecoration: 'none' }} textAlign="center" component={Link} to={`/esams/${setting.toLowerCase()}`}>
-                        {setting}
-                      </Typography>
-                    </MenuItem>
-                  ))
+                  settings.length > 1 && (
+                    <>
+                      <MenuItem key={settings[1]}  onClick={log_out}>
+                        <Typography sx={{ textDecoration: 'none' }} textAlign="center">
+                          {settings[1]}
+                        </Typography>
+                      </MenuItem>
+                    </>
+                  )
                 ) : localStorage.getItem('userRole') === 'Student' ? (
                   settings.length > 1 && (
                     <>
