@@ -11,7 +11,7 @@ import RegisterCourses from './components/pages/students/RegisterCourses';
 import Attendance from './components/pages/students/Attendance';
 import Profile from './components/pages/students/Profile';
 import LecturerDashboard from './components/pages/lectures/LecturerDashboard';
-import Album from './components/Album';
+import Layout from './components/Layout';
 import { AuthProvider } from './components/context/AuthContext';
 import StudentRequired from './components/context/StudentRequired';
 
@@ -32,18 +32,10 @@ function App() {
           <Route path='password/reset/confirm/:uid/:token' exact element={<ResetPasswordConfirm />} />
 
 
-          {/* protected routes */}
-
-          {/* student components */}
-          <Route path='/dashboard' exact element={ <StudentRequired> <StudentDashboard /> </StudentRequired> } />
-          <Route path='/register-courses' exact element={<StudentRequired> <RegisterCourses /> </StudentRequired>} />
-          <Route path='/attendance' exact element={<StudentRequired> <Attendance /> </StudentRequired>} />
-          <Route path='/profile' exact element={<StudentRequired> <Profile /> </StudentRequired>} />
-
 
           <Route path='/LecturerDashboard' exact element={<LecturerDashboard />} />
           
-          <Route path='/Album' exact element={<Album />} />
+          <Route path='/esams/*' exact element={<Layout />} />
 
         </Routes>
       </AuthProvider>

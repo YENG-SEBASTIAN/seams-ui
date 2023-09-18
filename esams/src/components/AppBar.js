@@ -12,15 +12,21 @@ import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
 import AdbIcon from '@mui/icons-material/Adb';
 import Button from '@mui/material/Button';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+
+import { connect } from 'react-redux';
+import { logout } from '../actions/auth';
+
 
 const studentPages = ['Dashboard', 'Register-Courses', 'Attendance'];
 const lecturerPages = ['Dashboard', 'Add courses', 'Take Attendance', 'Reports'];
 const settings = ['Profile', 'Logout'];
 
-function ResponsiveAppBar() {
+
+function ResponsiveAppBar({ logout }) {
   const [anchorElNav, setAnchorElNav] = React.useState(null);
   const [anchorElUser, setAnchorElUser] = React.useState(null);
+  const navigate = useNavigate();
 
   const handleOpenNavMenu = (event) => {
     setAnchorElNav(event.currentTarget);
@@ -37,6 +43,13 @@ function ResponsiveAppBar() {
   const handleCloseUserMenu = () => {
     setAnchorElUser(null);
   };
+
+  const log_out = async () => {
+    await logout();
+    localStorage.removeItem('userRole');
+    window.location.reload();
+    return navigate('/')
+  }
 
   return (
     <AppBar position="static">
@@ -94,7 +107,7 @@ function ResponsiveAppBar() {
                 localStorage.getItem('userRole') === 'Student' ? (
                   studentPages.map((page) => (
                     <MenuItem key={page} onClick={handleCloseNavMenu}>
-                      <Typography sx={{textDecoration: 'none'}} textAlign="center" component={Link} to={`/${page.toLowerCase()}`}>
+                      <Typography sx={{ textDecoration: 'none' }} textAlign="center" component={Link} to={`/esams/${page.toLowerCase()}`}>
                         {page}
                       </Typography>
                     </MenuItem>
@@ -102,14 +115,14 @@ function ResponsiveAppBar() {
                 ) : localStorage.getItem('userRole') === 'Lecturer' ? (
                   lecturerPages.map((page) => (
                     <MenuItem key={page} onClick={handleCloseNavMenu}>
-                      <Typography sx={{textDecoration: 'none'}} textAlign="center" component={Link} to={`/${page.toLowerCase()}`}>
+                      <Typography sx={{ textDecoration: 'none' }} textAlign="center" component={Link} to={`/esams/${page.toLowerCase()}`}>
                         {page}
                       </Typography>
                     </MenuItem>
                   ))
                 ) : ''
               }
-          
+
             </Menu>
           </Box>
           <AdbIcon sx={{ display: { xs: 'flex', md: 'none' }, mr: 1 }} />
@@ -133,27 +146,27 @@ function ResponsiveAppBar() {
           </Typography>
           <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
             {
-            localStorage.getItem('userRole') === 'Student' ? (studentPages.map((page) => (
-              <Button
-                key={page}
-                onClick={handleCloseNavMenu}
-                sx={{ my: 2, color: 'white', display: 'block' }}
-                component={Link}
-                to={`/${page.toLowerCase()}`}
-              >
-                {page}
-              </Button>
-            ))) : localStorage.getItem('userRole') === 'Lecturer' ? (lecturerPages.map((page) => (
-              <Button
-                key={page}
-                onClick={handleCloseNavMenu}
-                sx={{ my: 2, color: 'white', display: 'block' }}
-                component={Link}
-                to={`/${page.toLowerCase()}`}
-              >
-                {page}
-              </Button>
-            ))) : ''
+              localStorage.getItem('userRole') === 'Student' ? (studentPages.map((page) => (
+                <Button
+                  key={page}
+                  onClick={handleCloseNavMenu}
+                  sx={{ my: 2, color: 'white', display: 'block' }}
+                  component={Link}
+                  to={`/esams/${page.toLowerCase()}`}
+                >
+                  {page}
+                </Button>
+              ))) : localStorage.getItem('userRole') === 'Lecturer' ? (lecturerPages.map((page) => (
+                <Button
+                  key={page}
+                  onClick={handleCloseNavMenu}
+                  sx={{ my: 2, color: 'white', display: 'block' }}
+                  component={Link}
+                  to={`/esams/${page.toLowerCase()}`}
+                >
+                  {page}
+                </Button>
+              ))) : ''
             }
           </Box>
 
@@ -180,20 +193,32 @@ function ResponsiveAppBar() {
               onClose={handleCloseUserMenu}
             >
               {
-              localStorage.getItem('userRole') === 'Student' ? (settings.map((setting) => (
-                <MenuItem key={setting} onClick={handleCloseUserMenu}>
-                  <Typography sx={{textDecoration: 'none'}} textAlign="center" component={Link} to={`/${setting.toLowerCase()}`}>
-                    {setting}
-                  </Typography>
-                </MenuItem>
-              ))) : localStorage.getItem('userRole') === 'Lecturer' ? (settings.length > 1 && (
-                <MenuItem key={settings[1]} onClick={handleCloseUserMenu}>
-                  <Typography sx={{textDecoration: 'none'}} textAlign="center" component={Link} to={`/${settings[1].toLowerCase()}`}>
-                    {settings[1]}
-                  </Typography>
-                </MenuItem>
-                )) : ''
-            }
+                localStorage.getItem('userRole') === 'Lecturer' ? (
+                  settings.map((setting) => (
+                    <MenuItem key={setting} onClick=''>
+                      <Typography sx={{ textDecoration: 'none' }} textAlign="center" component={Link} to={`/esams/${setting.toLowerCase()}`}>
+                        {setting}
+                      </Typography>
+                    </MenuItem>
+                  ))
+                ) : localStorage.getItem('userRole') === 'Student' ? (
+                  settings.length > 1 && (
+                    <>
+                      <MenuItem key={settings[0]}>
+                        <Typography sx={{ textDecoration: 'none' }} textAlign="center" component={Link} to={`/esams/${settings[0].toLowerCase()}`}>
+                          {settings[0]}
+                        </Typography>
+                      </MenuItem>
+                      <MenuItem key={settings[1]} onClick={log_out}>
+                        <Typography sx={{ textDecoration: 'none' }} textAlign="center">
+                          {settings[1]}
+                        </Typography>
+                      </MenuItem>
+                    </>
+                  )
+                ) : ''
+              }
+
             </Menu>
           </Box>
         </Toolbar>
@@ -201,4 +226,4 @@ function ResponsiveAppBar() {
     </AppBar>
   );
 }
-export default ResponsiveAppBar;
+export default connect(null, { logout })(ResponsiveAppBar);

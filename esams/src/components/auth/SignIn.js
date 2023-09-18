@@ -14,7 +14,7 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { connect } from 'react-redux';
-import { login, load_user } from '../../actions/auth';
+import { login, load_user, checkAuthenticated } from '../../actions/auth';
 import { useState, useEffect } from 'react';
 import validation from './validations/Validation';
 
@@ -38,7 +38,7 @@ const defaultTheme = createTheme();
 const EMAIL_REG = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9]+(?:\.[a-zA-Z0-9]+)*$/;
 const PASSWORD_REG = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%]).{8,24}$/;
 
-const SignIn = ({ login }) => {
+const SignIn = ({ login, load_user, checkAuthenticated }) => {
   const auth = useAuth();
   const navigate = useNavigate();
 
@@ -63,6 +63,19 @@ const SignIn = ({ login }) => {
     setErrors({});
   }, [email, password]);
 
+  useEffect(() => {
+    // Check if the user is already authenticated and has an access token
+    const accessToken = localStorage.getItem('access');
+
+    if (checkAuthenticated && accessToken) {
+      // User is authenticated, redirect to the dashboard
+      navigate('/esams/dashboard', { replace: true });
+    } else {
+      // User is not authenticated, load user data if needed
+      load_user();
+    }
+  }, [checkAuthenticated, load_user, navigate]);
+
   const handleSubmit = async (event) => {
     event.preventDefault();
     const formData = { email, password };
@@ -73,6 +86,7 @@ const SignIn = ({ login }) => {
         await login(email, password);
         await auth.load_user();
         if (localStorage.getItem('userRole') === 'Student') {
+          window.location.reload()
           navigate('/dashboard', { replace: true });
         }
       } catch (error) {
@@ -171,4 +185,4 @@ const mapStateToProps = (state) => ({
   isAuthenticated: state.auth.isAuthenticated,
 });
 
-export default connect(mapStateToProps, { login, load_user })(SignIn);
+export default connect(mapStateToProps, { login, load_user, checkAuthenticated })(SignIn);
