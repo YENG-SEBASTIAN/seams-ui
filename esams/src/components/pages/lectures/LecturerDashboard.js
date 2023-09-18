@@ -13,8 +13,8 @@ import axios from 'axios';
 import { LECTURERS_API_BASE_URL } from '../../../actions/types';
 import { delete_lecturer_course } from './services/service';
 import { useNavigate, Link } from 'react-router-dom';
-import TakeAttendace from './TakeAttendance';
-
+import TakeAttendance from './TakeAttendance';
+import CircularProgress from '@mui/material/CircularProgress'; // Import CircularProgress
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -47,6 +47,7 @@ export default function LecturerDashboard() {
   const navigate = useNavigate();
 
   const [courses, setCourses] = React.useState([]);
+  const [loading, setLoading] = React.useState(true); // Add loading state
 
   const load_lecturer_courses = async () => {
     const config = {
@@ -57,9 +58,13 @@ export default function LecturerDashboard() {
       },
     };
     await axios.get(LECTURERS_API_BASE_URL + 'lecturerGetSemesterCourse/', config)
-      .then((res) => setCourses(res.data))
+      .then((res) => {
+        setCourses(res.data);
+        setLoading(false); // Set loading to false when data is loaded
+      })
       .catch((error) => {
         console.error('Error loading lecturer courses:', error);
+        setLoading(false); // Set loading to false on error
       });
   };
 
@@ -82,38 +87,43 @@ export default function LecturerDashboard() {
       <Typography component="h1" variant="h5" sx={{ color: 'primary.dark', textAlign: 'center', padding: 2 }}>
         Semester Courses
         </Typography>
-      <Table aria-label="customized table">
-        <TableHead sx={{ backgroundColor: 'primary.dark' }}>
-          <TableRow>
-            <StyledTableCell>Class Name</StyledTableCell>
-            <StyledTableCell>Course Name</StyledTableCell>
-            <StyledTableCell>Course Code</StyledTableCell>
-            <StyledTableCell>Level</StyledTableCell>
-            <StyledTableCell>Credit Hours</StyledTableCell>
-            <StyledTableCell>Actions</StyledTableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {courses.map((row) => (
-            <StyledTableRow key={row.name}>
-              <StyledTableCell component="th" scope="row">
-                {row.className}
-              </StyledTableCell>
-              <StyledTableCell>{row.courseName}</StyledTableCell>
-              <StyledTableCell>{row.courseCode}</StyledTableCell>
-              <StyledTableCell>{row.level}</StyledTableCell>
-              <StyledTableCell>{row.creditHours}</StyledTableCell>
-              <StyledTableCell>
-                <Link to={`/esams/updateLecturerCourse/${row.id}`}>
-                  <EditAttributesRounded color='primary' />
-                </Link>
-                <DeleteForeverRounded sx={{ cursor: 'pointer' }} onClick={() => delete_course(row.id)} color='error' />
-              </StyledTableCell>
-            </StyledTableRow>
-          ))}
-        </TableBody>
-      </Table>
-      <TakeAttendace />
+      {/* Show CircularProgress while loading */}
+      {loading ? (
+        <CircularProgress sx={{ display: 'block', margin: 'auto' }} />
+      ) : (
+        <Table aria-label="customized table">
+          <TableHead sx={{ backgroundColor: 'primary.dark' }}>
+            <TableRow>
+              <StyledTableCell>Class Name</StyledTableCell>
+              <StyledTableCell>Course Name</StyledTableCell>
+              <StyledTableCell>Course Code</StyledTableCell>
+              <StyledTableCell>Level</StyledTableCell>
+              <StyledTableCell>Credit Hours</StyledTableCell>
+              <StyledTableCell>Actions</StyledTableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {courses.map((row) => (
+              <StyledTableRow key={row.name}>
+                <StyledTableCell component="th" scope="row">
+                  {row.className}
+                </StyledTableCell>
+                <StyledTableCell>{row.courseName}</StyledTableCell>
+                <StyledTableCell>{row.courseCode}</StyledTableCell>
+                <StyledTableCell>{row.level}</StyledTableCell>
+                <StyledTableCell>{row.creditHours}</StyledTableCell>
+                <StyledTableCell>
+                  <Link to={`/esams/updateLceturerCourse/${row.id}`}>
+                    <EditAttributesRounded color='primary' />
+                  </Link>
+                  <DeleteForeverRounded sx={{ cursor: 'pointer' }} onClick={() => delete_course(row.id)} color='error' />
+                </StyledTableCell>
+              </StyledTableRow>
+            ))}
+          </TableBody>
+        </Table>
+      )}
+      <TakeAttendance />
     </ResponsiveTableContainer>
   );
 }

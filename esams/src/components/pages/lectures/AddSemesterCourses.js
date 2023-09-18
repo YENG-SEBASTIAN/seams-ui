@@ -1,4 +1,3 @@
-
 import * as React from 'react';
 import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
@@ -12,15 +11,14 @@ import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
 import Grid from '@mui/material/Grid';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
+import CircularProgress from '@mui/material/CircularProgress'; // Import CircularProgress
 import { add_lecturer_semester_courses } from './services/service';
 import validation from '../../auth/validations/Validation';
 import { useNavigate } from 'react-router-dom';
 
-
 const defaultTheme = createTheme();
 
 export default function AddSemesterCourses() {
-
   const navigate = useNavigate();
   const [errors, setErrors] = React.useState({});
   const [level, setLevel] = React.useState('');
@@ -28,23 +26,29 @@ export default function AddSemesterCourses() {
   const [courseCode, setCourseCode] = React.useState(2);
   const [courseName, setCourseName] = React.useState('');
   const [creditHours, setCreditHours] = React.useState('');
-
+  const [loading, setLoading] = React.useState(false); // Add loading state
 
   React.useEffect(() => {
-    setErrors({})
-  }, [courseName])
+    setErrors({});
+  }, [courseName]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     const formData = { level, className, courseCode, courseName, creditHours };
     if (level !== "" && className !== "" && courseCode !== "" && courseName !== "" && creditHours !== "") {
-      await add_lecturer_semester_courses(level, className, courseCode, courseName, creditHours);
-      return navigate("/esams/home")
+      setLoading(true); // Set loading to true before making the request
+      try {
+        await add_lecturer_semester_courses(level, className, courseCode, courseName, creditHours);
+        setLoading(false); // Set loading to false after the request is successful
+        navigate("/esams/home");
+      } catch (error) {
+        console.error('Error adding course:', error);
+        setLoading(false); // Set loading to false on error
+      }
     } else {
       setErrors(validation(formData));
     }
-
-  }
+  };
 
   return (
     <React.Fragment>
@@ -59,13 +63,10 @@ export default function AddSemesterCourses() {
               alignItems: 'center',
             }}
           >
-
             <Typography component="h1" variant="h5" sx={{ color: 'primary.dark', textAlign: 'center', padding: 2 }}>
               Add semester courses
             </Typography>
             <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
-
-
               <Grid item xs={12}>
                 <TextField
                   margin="normal"
@@ -77,7 +78,6 @@ export default function AddSemesterCourses() {
                   onChange={(e) => setClassName(e.target.value)}
                 />
               </Grid>
-
               <TextField
                 margin="normal"
                 required
@@ -87,7 +87,6 @@ export default function AddSemesterCourses() {
                 id="courseName"
                 onChange={(e) => setCourseName(e.target.value)}
               />
-
               <TextField
                 margin="normal"
                 required
@@ -97,7 +96,6 @@ export default function AddSemesterCourses() {
                 id="courseCode"
                 onChange={(e) => setCourseCode(e.target.value)}
               />
-
               <TextField
                 margin="normal"
                 required
@@ -108,7 +106,6 @@ export default function AddSemesterCourses() {
                 type='number'
                 onChange={(e) => setCreditHours(e.target.value)}
               />
-
               <Grid item xs={12}>
                 <FormControl fullWidth>
                   <InputLabel id="level">Level</InputLabel>
@@ -131,12 +128,12 @@ export default function AddSemesterCourses() {
                 fullWidth
                 variant="contained"
                 sx={{ mt: 3, mb: 2 }}
+                disabled={loading} // Disable the button when loading is true
               >
-                add course
+                {loading ? <CircularProgress size={24} /> : 'Add Course'} {/* Show CircularProgress when loading */}
               </Button>
             </Box>
           </Box>
-          {/* <Copyright sx={{ mt: 8, mb: 4 }} /> */}
         </Container>
       </ThemeProvider>
     </React.Fragment>

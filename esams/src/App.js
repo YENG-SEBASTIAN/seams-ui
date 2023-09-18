@@ -6,7 +6,6 @@ import SignUp from './components/auth/SignUp';
 import Activate from './components/auth/Activate';
 import ResetPassword from './components/auth/ResetPassword';
 import ResetPasswordConfirm from './components/auth/ResetPasswordConfirm';
-import LecturerDashboard from './components/pages/lectures/LecturerDashboard';
 import Layout from './components/Layout';
 import { AuthProvider } from './components/context/AuthContext';
 

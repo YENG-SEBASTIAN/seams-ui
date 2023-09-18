@@ -4,7 +4,7 @@ import CardMedia from '@mui/material/CardMedia';
 import Container from '@mui/material/Container';
 import Grid from '@mui/material/Grid';
 import Typography from '@mui/material/Typography';
-import { ThemeProvider, createTheme, useMediaQuery } from '@mui/material';
+import { ThemeProvider, createTheme, useMediaQuery, CircularProgress } from '@mui/material';
 import { USERS_API_BASE_URL, REACT_API_BASE_URL } from '../../../actions/types';
 import axios from 'axios';
 import styled from '@emotion/styled';
@@ -24,75 +24,76 @@ const Item = styled(Grid)(({ theme }) => ({
 export default function Profile() {
   const [user, setUser] = useState([]);
   const [profile, setProfile] = useState([]);
+  const [loading, setLoading] = useState(true); // Add loading state
 
   const isMobile = useMediaQuery(defaultTheme.breakpoints.down('sm'));
 
   useEffect(() => {
-    const userInfo = async () => {
+    const fetchData = async () => {
       try {
-        const response = await axios.get(USERS_API_BASE_URL + 'getUser/', {
+        const userResponse = await axios.get(USERS_API_BASE_URL + 'getUser/', {
           headers: {
             Authorization: `JWT ${localStorage.getItem('access')}`,
           },
         });
-        setUser(response.data);
-      } catch (error) {
-        console.error('Error fetching user info:', error);
-      }
-    };
+        setUser(userResponse.data);
 
-    const userProfile = async () => {
-      try {
-        const response = await axios.get(USERS_API_BASE_URL + 'getProfile/', {
+        const profileResponse = await axios.get(USERS_API_BASE_URL + 'getProfile/', {
           headers: {
             Authorization: `JWT ${localStorage.getItem('access')}`,
           },
         });
-        setProfile(response.data);
+        setProfile(profileResponse.data);
+
+        setLoading(false); // Set loading to false after data is loaded
       } catch (error) {
-        console.error('Error fetching user profile:', error);
+        console.error('Error fetching user data:', error);
+        setLoading(false); // Set loading to false on error
       }
     };
 
-    userInfo();
-    userProfile();
+    fetchData();
   }, []);
 
   return (
     <ThemeProvider theme={defaultTheme}>
       <Container component="main" maxWidth="xs">
-        <Grid container spacing={2} direction={isMobile ? 'column' : 'row'}>
-          <Grid item xs={12} sm={6}>
-            <CardMedia
-              component="img"
-              image={REACT_API_BASE_URL + profile.picture}
-              alt={user.fullName}
-              height={isMobile ? 200 : 300}
-              width={isMobile ? 200 : 400}
-            />
+        {loading ? ( // Render CircularProgress when loading is true
+          <CircularProgress sx={{ display: 'block', margin: 'auto', marginTop: '100px' }} />
+        ) : (
+          <Grid container spacing={2} direction={isMobile ? 'column' : 'row'}>
+            <Grid item xs={12} sm={6}>
+              <CardMedia
+                component="img"
+                image={REACT_API_BASE_URL + profile.picture}
+                alt={user.fullName}
+                height={isMobile ? 200 : 300}
+                width={isMobile ? 200 : 400}
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <Item>
+                <h4>ID: {user.username}</h4>
+                <h4>Role: {user.role}</h4>
+                <h4>Name: {user.fullName}</h4>
+                <h4>Program: {profile.programme}</h4>
+                <h4>Level: {profile.level}</h4>
+                <h4>Contact: {profile.contact}</h4>
+                <h4>Email: {user.email}</h4>
+                <h4>About: {profile.about}</h4>
+              </Item>
+              {profile.length === 0 ? (
+                <>
+                  <SetStudentProfile />
+                </>
+              ) : (
+                <>
+                  <UpdateProfile />
+                </>
+              )}
+            </Grid>
           </Grid>
-          <Grid item xs={12} sm={6}>
-            <Item>
-              <h4>ID: {user.username}</h4>
-              <h4>Role: {user.role}</h4>
-              <h4>Name: {user.fullName}</h4>
-              <h4>Program: {profile.programme}</h4>
-              <h4>Level: {profile.level}</h4>
-              <h4>Contact: {profile.contact}</h4>
-              <h4>Email: {user.email}</h4>
-              <h4>About: {profile.about}</h4>
-            </Item>
-            {profile.length === 0 ? (
-              <>
-                <SetStudentProfile />
-              </>
-            ) : (
-              <>
-                <UpdateProfile />
-              </>
-            )}
-          </Grid>
-        </Grid>
+        )}
       </Container>
     </ThemeProvider>
   );

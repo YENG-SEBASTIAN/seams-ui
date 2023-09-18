@@ -12,8 +12,8 @@ import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
 import AdbIcon from '@mui/icons-material/Adb';
 import Button from '@mui/material/Button';
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import { Link, useNavigate } from 'react-router-dom';
-
 import { connect } from 'react-redux';
 import { logout } from '../actions/auth';
 
@@ -172,7 +172,9 @@ function ResponsiveAppBar({ logout }) {
           <Box sx={{ flexGrow: 0 }}>
             <Tooltip title="Open settings">
               <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                <Avatar alt="Remy Sharp" src="/static/images/avatar/2.jpg" />
+                <Avatar>
+                  <AccountCircleIcon />
+                </Avatar>
               </IconButton>
             </Tooltip>
             <Menu
@@ -195,7 +197,7 @@ function ResponsiveAppBar({ logout }) {
                 localStorage.getItem('userRole') === 'Lecturer' ? (
                   settings.length > 1 && (
                     <>
-                      <MenuItem key={settings[1]}  onClick={log_out}>
+                      <MenuItem key={settings[1]} onClick={log_out}>
                         <Typography sx={{ textDecoration: 'none' }} textAlign="center">
                           {settings[1]}
                         </Typography>
