@@ -23,6 +23,8 @@ export default function MarkAttendance() {
   const [stream, setStream] = React.useState(null);
   const [detectingFace, setDetectingFace] = React.useState(false);
   const [cameraActive, setCameraActive] = React.useState(false); // New state
+  const [message, setMessage] = React.useState(null); // New state for the message
+  const [messageColor, setMessageColor] = React.useState(''); // New state for message color
 
   const loadModels = async () => {
     try {
@@ -117,27 +119,77 @@ export default function MarkAttendance() {
     }
   };
 
+  // const sendImageToBackend = async (image) => {
+  //   const config = {
+  //     headers: {
+  //       "Content-Type": "application/json",  // Change to 'application/json'
+  //       "Authorization": `JWT ${localStorage.getItem("access")}`
+  //     }
+  //   };
+
+  //   try {
+  //     const response = await axios.post(
+  //       USERS_API_BASE_URL + `compare_faces_api/`,
+  //       {
+  //         imgData: image, // Assuming 'faceDescriptor' is the 128-dimensional descriptor
+  //       },
+  //       config
+  //     );
+  //     console.log(response.data)
+  //   } catch (error) {
+  //     console.error('Error sending face descriptor:', error);
+  //   }
+  // };
+
+
   const sendImageToBackend = async (image) => {
     const config = {
       headers: {
-        "Content-Type": "application/json",  // Change to 'application/json'
+        "Content-Type": "application/json",
         "Authorization": `JWT ${localStorage.getItem("access")}`
       }
     };
-
+  
     try {
       const response = await axios.post(
         USERS_API_BASE_URL + `compare_faces_api/`,
         {
-          imgData: image, // Assuming 'faceDescriptor' is the 128-dimensional descriptor
+          imgData: image,
         },
         config
       );
-      console.log(response.data)
+  
+      // Check the response status code to determine success or error
+      if (response.status === 200) {
+        // Set success message with green color
+        setMessage(response.data.message); // Assuming the backend returns a 'message' field
+        setMessageColor('green');
+      } else {
+        // Set error message with red color
+        setMessage(response.data.error); // Assuming the backend returns an 'error' field
+        setMessageColor('red');
+      }
+  
+      // Clear the message after 2 seconds
+      setTimeout(() => {
+        setMessage(null);
+        setMessageColor('');
+      }, 2000);
     } catch (error) {
       console.error('Error sending face descriptor:', error);
+  
+      // Set error message with red color
+      setMessage('Error capturing face');
+      setMessageColor('red');
+  
+      // Clear the error message after 2 seconds
+      setTimeout(() => {
+        setMessage(null);
+        setMessageColor('');
+      }, 2000);
     }
   };
+  
 
   return (
     <React.Fragment>
@@ -153,9 +205,11 @@ export default function MarkAttendance() {
             }}
           >
             <Typography component="h1" variant="h5" sx={{ color: 'primary.dark', textAlign: 'center', padding: 2 }}>
-            Take Attendance
+              Take Attendance
             </Typography>
-
+            {message && (
+              <div style={{ color: messageColor }}>{message}</div>
+            )}
             <div className='videoCapture displayFlex'>
               <CardMedia component='video' ref={videoRef} height={videoHeight} width={videoWidth} autoPlay />
               <div ref={canvasRef} className='videoCapture' />
