@@ -1,4 +1,3 @@
-
 import * as React from 'react';
 import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
@@ -12,9 +11,9 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { useState, useEffect } from 'react';
 import validation from './validations/Validation';
 import { useNavigate } from 'react-router-dom';
-
 import { connect } from 'react-redux';
 import { password_reset } from '../../actions/auth';
+import CircularProgress from '@mui/material/CircularProgress'; // Import CircularProgress
 
 function Copyright(props) {
   return (
@@ -34,46 +33,52 @@ const defaultTheme = createTheme();
 const EMAIL_REG = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9]+(?:\.[a-zA-Z0-9]+)*$/;
 
 const ResetPassword = ({ password_reset }) => {
-
   const navigate = useNavigate();
 
   const [errors, setErrors] = useState({});
   const [requestSent, setRequestSent] = useState(false);
 
   const [successMsg, setSuccessMsg] = useState('');
-
+  const [errorMsg, setErrorMsg] = useState('');
 
   const [email, setEmail] = useState('');
-  const [validEmail, setValidEmail] = useState(false)
-
+  const [validEmail, setValidEmail] = useState(false);
+  const [loading, setLoading] = useState(false); // State for loading indicator
 
   useEffect(() => {
     const result = EMAIL_REG.test(email);
     setValidEmail(result);
-  }, [email])
+  }, [email]);
 
   useEffect(() => {
     setErrors({});
-  }, [email])
-
+  }, [email]);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    const formData = { email }
+    const formData = { email };
+    setSuccessMsg('');
+    setErrorMsg('');
+
     if (validEmail === true) {
-      await password_reset(email);
-      setRequestSent(true)
-      setSuccessMsg(' Successful')
+      try {
+        setLoading(true); // Start showing loading indicator
+        await password_reset(email);
+        setRequestSent(true);
+        setSuccessMsg('Password reset email sent successfully. Please check your email');
+        setTimeout(() => {
+          setSuccessMsg(''); // Clear the success message after 2 seconds
+          navigate('/'); // Redirect after 2 seconds
+        }, 2000);
+      } catch (error) {
+        setErrorMsg('Error sending password reset email. Please try again.');
+      } finally {
+        setLoading(false); // Stop showing loading indicator
+      }
     } else {
       setErrors(validation(formData));
     }
   };
-
-  if (requestSent) {
-    setInterval(() => {
-      return navigate("/")
-    }, 1000);
-  }
 
   return (
     <ThemeProvider theme={defaultTheme}>
@@ -87,10 +92,20 @@ const ResetPassword = ({ password_reset }) => {
             alignItems: 'center',
           }}
         >
-
           <Typography component="h1" variant="h5">
             Reset Password
           </Typography>
+            {/* Display the success or error message with appropriate color */}
+            {successMsg && (
+              <h4 style={{ color: 'green', textAlign: 'center' }}>
+                {successMsg}
+              </h4>
+            )}
+            {errorMsg && (
+              <h4 style={{ color: 'red', textAlign: 'center' }}>
+                {errorMsg}
+              </h4>
+            )}
           <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
             <TextField
               margin="normal"
@@ -105,16 +120,17 @@ const ResetPassword = ({ password_reset }) => {
               helperText={errors.email}
               error={errors.email}
             />
-
             <Button
               type="submit"
               fullWidth
               variant="contained"
               sx={{ mt: 3, mb: 2 }}
+              disabled={loading} // Disable the button when loading
             >
-              Reset Password
+              {loading ? <CircularProgress size={24} /> : 'Reset Password'}{/* Show loading indicator when loading */}
             </Button>
-            <Grid container>
+          
+            <Grid container justifyContent="flex-end">
               <Grid item xs>
                 <Link href="/" variant="body2">
                   Go back
@@ -127,10 +143,6 @@ const ResetPassword = ({ password_reset }) => {
       </Container>
     </ThemeProvider>
   );
-}
+};
 
-const mapStateToProps = state => ({
-  isAuthenticated: state.auth.isAuthenticated
-})
-  ;
-export default connect(mapStateToProps, { password_reset })(ResetPassword);
+export default connect(null, { password_reset })(ResetPassword);

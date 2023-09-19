@@ -19,7 +19,7 @@ import { connect } from 'react-redux';
 import { signup } from '../../actions/auth';
 import validation from './validations/Validation';
 import { useState, useEffect } from 'react';
-import LinearProgress from '@mui/material/LinearProgress'; // Import LinearProgress
+import CircularProgress from '@mui/material/CircularProgress'; // Import LinearProgress
 
 function Copyright(props) {
   return (
@@ -57,6 +57,9 @@ const SignUp = ({ signup }) => {
   const [re_password, setRe_password] = useState('');
   const [validRe_password, setValidRe_password] = useState(false);
   const [loading, setLoading] = useState(false); // State for loading indicator
+  const [alertMessage, setAlertMessage] = useState('');
+  const [alertColor, setAlertColor] = useState(''); // State for alert color
+  const [showAlert, setShowAlert] = useState(false); // State for alert visibility
 
   useEffect(() => {
     const result = USERNAME_REG.test(username);
@@ -87,10 +90,11 @@ const SignUp = ({ signup }) => {
     setErrors({});
   }, [username, fullName, email, password, re_password]);
 
+
   const handleSubmit = async (event) => {
     event.preventDefault();
     const formData = { username, fullName, email, password, re_password };
-    
+
     if (
       validUsername &&
       validFullName &&
@@ -99,13 +103,26 @@ const SignUp = ({ signup }) => {
       validRe_password
     ) {
       try {
-        setLoading(true); // Start showing loading indicator
+        setLoading(true);
         await signup(username.toUpperCase(), fullName, email, role, password, re_password);
-        navigate('/');
+        setAlertMessage('Account created! Please check your email and verify your account');
+        setAlertColor('green'); // Set the color to green for success
+        setShowAlert(true);
+        setTimeout(() => {
+          setShowAlert(false);
+          navigate('/'); // Redirect after 2 seconds
+        }, 2000); // Hide the alert after 2 seconds
       } catch (error) {
+        console.error('Signup error:', error);
         setErrors(validation(formData));
+        setAlertMessage('Account creation failed. Please check your inputs.');
+        setAlertColor('red'); // Set the color to red for error
+        setShowAlert(true);
+        setTimeout(() => {
+          setShowAlert(false);
+        }, 2000); // Hide the alert after 2 seconds
       } finally {
-        setLoading(false); // Stop showing loading indicator
+        setLoading(false);
       }
     } else {
       setErrors(validation(formData));
@@ -133,6 +150,10 @@ const SignUp = ({ signup }) => {
           <Typography component="h1" variant="h5">
             Sign up
           </Typography>
+          {/* Display the alert message */}
+          {showAlert && (
+            <h5 style={{ marginTop: '1rem', color: alertColor }}>{alertMessage}</h5>
+          )}
           <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 3 }}>
             <Grid container spacing={2}>
               <Grid item xs={12}>
@@ -224,7 +245,7 @@ const SignUp = ({ signup }) => {
               sx={{ mt: 3, mb: 2 }}
               disabled={loading} // Disable the button when loading
             >
-              {loading ? <LinearProgress /> : 'Sign Up'}{/* Show loading indicator when loading */}
+              {loading ? <CircularProgress size={24} /> : 'Sign Up'}{/* Show loading indicator when loading */}
             </Button>
             <Grid container justifyContent="flex-end">
               <Grid item>

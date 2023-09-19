@@ -48,7 +48,11 @@ const SignIn = ({ login, load_user, checkAuthenticated }) => {
   const [password, setPassword] = useState('');
   const [validPassword, setValidPassword] = useState(false);
   const [loading, setLoading] = useState(false); // State for showing loading indicator
+  const [alertMessage, setAlertMessage] = useState('');
+  const [showAlert, setShowAlert] = useState(false);
+  const [alertColor, setAlertColor] = useState(false);
 
+  
   useEffect(() => {
     const result = EMAIL_REG.test(email);
     setValidEmail(result);
@@ -85,27 +89,52 @@ const SignIn = ({ login, load_user, checkAuthenticated }) => {
 
     if (validEmail && validPassword) {
       try {
-        setLoading(true); // Start showing loading indicator
+        setLoading(true);
         await login(email, password);
         await auth.load_user();
         if (localStorage.getItem('userRole') === 'Student') {
-          navigate('/esams/dashboard', { replace: true });
-          window.location.reload();
+          setAlertMessage('Login successful! Redirecting...');
+          setAlertColor('green'); // Set the color to green for success
+          setShowAlert(true);
+          setTimeout(() => {
+            navigate('/esams/dashboard', { replace: true });
+            window.location.reload();
+          }, 2000); // Redirect after 3 seconds
         } else if (localStorage.getItem('userRole') === 'Lecturer') {
-          navigate('/esams/home', { replace: true })
-          window.location.reload();
+          setAlertMessage('Login successful! Redirecting...');
+          setAlertColor('green'); // Set the color to green for success
+          setShowAlert(true);
+          setTimeout(() => {
+            navigate('/esams/home', { replace: true });
+            window.location.reload();
+          }, 2000); // Redirect after 3 seconds
+        }else{
+          setAlertMessage('Login failed. Please check your credentials.');
+          setAlertColor('red'); // Set the color to red for error
+          setShowAlert(true);
+          setTimeout(() => {
+            setShowAlert(false);
+          }, 2000); 
         }
       } catch (error) {
         console.error('Login error:', error);
         setErrors(validation(formData));
+        setAlertMessage('Login failed. Please check your credentials.');
+        setAlertColor('red'); // Set the color to red for error
+        setShowAlert(true);
+        setTimeout(() => {
+          setShowAlert(false);
+        }, 2000); // Hide the alert after 3 seconds
       } finally {
-        setLoading(false); // Stop showing loading indicator
+        setLoading(false);
       }
     } else {
       console.log("Invalid email or password");
       setErrors(validation(formData));
     }
   };
+
+
 
   return (
     <ThemeProvider theme={defaultTheme}>
@@ -128,6 +157,10 @@ const SignIn = ({ login, load_user, checkAuthenticated }) => {
           <Typography component="h1" variant="h5">
             Sign In
           </Typography>
+          {/* Display the alert message with color based on alertColor */}
+          {showAlert && (
+            <h5 style={{ marginBottom: '1rem', color: alertColor }}>{alertMessage}</h5>
+          )}
           <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 3 }}>
             <Grid container spacing={2}>
               <Grid item xs={12}>
