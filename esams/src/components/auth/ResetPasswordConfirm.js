@@ -1,4 +1,3 @@
-
 import * as React from 'react';
 import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
@@ -15,6 +14,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 
 import { connect } from 'react-redux';
 import { password_reset_confirm } from '../../actions/auth';
+import CircularProgress from '@mui/material/CircularProgress'; // Import CircularProgress
 
 function Copyright(props) {
   return (
@@ -34,51 +34,58 @@ const defaultTheme = createTheme();
 const PASSWORD_REG = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%]).{8,24}$/;
 
 const ResetPasswordConfirm = ({ password_reset_confirm }) => {
-
   const params = useParams();
   const navigate = useNavigate();
   const [errors, setErrors] = useState({});
   const [requestSent, setRequestSent] = useState(false);
   const [successMsg, setSuccessMsg] = useState('');
 
-
   const [new_password, setNewPassword] = useState('');
-  const [validNewPassword, setValidNewPassword] = useState(false)
+  const [validNewPassword, setValidNewPassword] = useState(false);
 
   const [re_new_password, setReNewPassword] = useState('');
-  const [validReNewPassword, setValidReNewPassword] = useState(false)
+  const [validReNewPassword, setValidReNewPassword] = useState(false);
+
+  const [loading, setLoading] = useState(false); // State for loading indicator
 
   useEffect(() => {
     const result = PASSWORD_REG.test(new_password);
     setValidNewPassword(result);
-  }, [new_password])
+  }, [new_password]);
 
   useEffect(() => {
     const result = PASSWORD_REG.test(re_new_password);
     setValidReNewPassword(result);
-  }, [re_new_password])
+  }, [re_new_password]);
 
   useEffect(() => {
     setErrors({});
-  }, [new_password, re_new_password])
-
+  }, [new_password, re_new_password]);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
     const uid = params.uid;
     const token = params.token;
-    const formData = { uid, token, new_password, re_new_password }
+    const formData = { uid, token, new_password, re_new_password };
     if (validNewPassword === true && validReNewPassword === true) {
-      await password_reset_confirm(uid, token, new_password, re_new_password);
-      setRequestSent(true)
-      setSuccessMsg('Login Successful')
+      try {
+        setLoading(true); // Start showing loading indicator
+        await password_reset_confirm(uid, token, new_password, re_new_password);
+        setRequestSent(true);
+        setSuccessMsg('Login Successful');
+      } catch (error) {
+        // Handle error
+        console.error(error);
+      } finally {
+        setLoading(false); // Stop showing loading indicator
+      }
     } else {
       setErrors(validation(formData));
     }
   };
 
   if (requestSent) {
-    return navigate("/")
+    return navigate('/');
   }
 
   return (
@@ -93,7 +100,6 @@ const ResetPasswordConfirm = ({ password_reset_confirm }) => {
             alignItems: 'center',
           }}
         >
-
           <Typography component="h1" variant="h5">
             Set New Password
           </Typography>
@@ -128,8 +134,9 @@ const ResetPasswordConfirm = ({ password_reset_confirm }) => {
               fullWidth
               variant="contained"
               sx={{ mt: 3, mb: 2 }}
+              disabled={loading} // Disable the button when loading
             >
-              Reset
+              {loading ? <CircularProgress size={24} /> : 'Reset'}{/* Show loading indicator when loading */}
             </Button>
             <Grid container>
               <Grid item xs>
@@ -144,7 +151,6 @@ const ResetPasswordConfirm = ({ password_reset_confirm }) => {
       </Container>
     </ThemeProvider>
   );
-}
-
+};
 
 export default connect(null, { password_reset_confirm })(ResetPasswordConfirm);

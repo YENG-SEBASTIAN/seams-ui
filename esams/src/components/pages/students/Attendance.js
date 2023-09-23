@@ -91,7 +91,7 @@ export default function Attendance() {
                 </StyledTableCell>
                 <StyledTableCell>{row.courseCode}</StyledTableCell>
                 <StyledTableCell>{row.courseName}</StyledTableCell>
-                <StyledTableCell>{new Date(row.attendance).toLocaleDateString()}</StyledTableCell>
+                <StyledTableCell>{new Date(row.atendanceTime).toLocaleString()}</StyledTableCell>
                 <StyledTableCell>{row.isPresent ? 'Present' : 'Absent'}</StyledTableCell>
               </StyledTableRow>
             ))}

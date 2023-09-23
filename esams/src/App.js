@@ -7,6 +7,7 @@ import Activate from './components/auth/Activate';
 import ResetPassword from './components/auth/ResetPassword';
 import ResetPasswordConfirm from './components/auth/ResetPasswordConfirm';
 import Layout from './components/Layout';
+import NotFoundPage from './../src/components/NotFoundPage';
 import { AuthProvider } from './components/context/AuthContext';
 
 function App() {
@@ -24,8 +25,10 @@ function App() {
           <Route path='/activate/:uid/:token' exact element={<Activate />} />
           <Route path='/reset-password' exact element={<ResetPassword />} />
           <Route path='password/reset/confirm/:uid/:token' exact element={<ResetPasswordConfirm />} />
+          <Route path='*' exact element={<NotFoundPage />} />
 
           {/* protected routes */}
+          <Route path='/*' exact element={<NotFoundPage />} />
           <Route path='/esams/*' exact element={<Layout />} />
 
         </Routes>
