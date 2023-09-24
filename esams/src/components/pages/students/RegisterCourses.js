@@ -14,6 +14,7 @@ import Grid from '@mui/material/Grid';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import validation from '../../auth/validations/Validation';
 import { add_student_semester_courses } from './studentService/service';
+import { USERS_API_BASE_URL } from '../../../actions/types';
 import { Await, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
@@ -28,15 +29,29 @@ export default function RegisterCourses() {
   const [courseCode, setCourseCode] = React.useState('');
   const [creditHours, setCreditHours] = React.useState(2);
   const [lecturerID, setLecturerID] = React.useState('');
+  const [lecturerName, setLecturerName] = React.useState([]);
 
 
   React.useEffect(() => {
     setErrors({})
   }, [courseName])
 
-  React.useEffect(() => {
+  const fetchData = async () => {
+    try {
+      const lecturerResponse = await axios.get(USERS_API_BASE_URL + 'getLecturers/', {
+        headers: {
+          Authorization: `JWT ${localStorage.getItem('access')}`,
+        },
+      });
+      setLecturerName(lecturerResponse.data);
+    } catch (error) {
+      console.error('Error fetching lecturer data:', error);
+    }
+  };
 
-  })
+  React.useEffect(() => {
+    fetchData();
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -98,29 +113,21 @@ export default function RegisterCourses() {
                 onChange={(e) => setCreditHours(e.target.value)}
 
               />
-              <TextField
-                margin="normal"
-                required
-                fullWidth
-                name="lecturerID"
-                label="Lecturer Full Name"
-                id="lecturerID"
-                onChange={(e) => setLecturerID(e.target.value)}
-              />
               <Grid item xs={12}>
                 <FormControl fullWidth>
-                  <InputLabel id="level">Level</InputLabel>
+                  <InputLabel id="lecturerID">Lecturer Full Name</InputLabel>
                   <Select
-                    labelId="level"
-                    id="level"
-                    // value={level}
-                    label="Level"
-                    // onChange={(e) => setLevel(e.target.value)}
+                    labelId="lecturerID"
+                    id="lecturerID"
+                    value={lecturerID}
+                    label="lecturerID"
+                    onChange={(e) => setLecturerID(e.target.value)}
                   >
-                    <MenuItem value={100}>100</MenuItem>
-                    <MenuItem value={200}>200</MenuItem>
-                    <MenuItem value={300}>300</MenuItem>
-                    <MenuItem value={400}>400</MenuItem>
+                    {lecturerName.map((name) => (
+                      <MenuItem key={name.id} value={name.fullName}>
+                        {name.fullName}
+                      </MenuItem>
+                    ))}
                   </Select>
                 </FormControl>
               </Grid>
