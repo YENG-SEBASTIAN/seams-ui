@@ -6,10 +6,16 @@ import TextField from '@mui/material/TextField';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
+import InputLabel from '@mui/material/InputLabel';
+import MenuItem from '@mui/material/MenuItem';
+import FormControl from '@mui/material/FormControl';
+import Select from '@mui/material/Select';
+import Grid from '@mui/material/Grid';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import validation from '../../auth/validations/Validation';
 import { add_student_semester_courses } from './studentService/service';
 import { Await, useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 
 const defaultTheme = createTheme();
@@ -27,6 +33,10 @@ export default function RegisterCourses() {
   React.useEffect(() => {
     setErrors({})
   }, [courseName])
+
+  React.useEffect(() => {
+
+  })
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -54,9 +64,9 @@ export default function RegisterCourses() {
               alignItems: 'center',
             }}
           >
-              <Typography component="h1" variant="h5" sx={{ color: 'primary.dark', textAlign: 'center', padding: 2 }}>
-                Add your semester courses
-              </Typography>
+            <Typography component="h1" variant="h5" sx={{ color: 'primary.dark', textAlign: 'center', padding: 2 }}>
+              Add your semester courses
+            </Typography>
             <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
               <TextField
                 margin="normal"
@@ -97,6 +107,23 @@ export default function RegisterCourses() {
                 id="lecturerID"
                 onChange={(e) => setLecturerID(e.target.value)}
               />
+              <Grid item xs={12}>
+                <FormControl fullWidth>
+                  <InputLabel id="level">Level</InputLabel>
+                  <Select
+                    labelId="level"
+                    id="level"
+                    // value={level}
+                    label="Level"
+                    // onChange={(e) => setLevel(e.target.value)}
+                  >
+                    <MenuItem value={100}>100</MenuItem>
+                    <MenuItem value={200}>200</MenuItem>
+                    <MenuItem value={300}>300</MenuItem>
+                    <MenuItem value={400}>400</MenuItem>
+                  </Select>
+                </FormControl>
+              </Grid>
               <Button
                 type="submit"
                 fullWidth
